@@ -4,7 +4,7 @@
 
 #include "pch.h"
 #include "framework.h"
-#include "ImagePro_kimdahun.h"
+#include "ImageProkimdahun.h"
 
 #include "ChildFrm.h"
 
