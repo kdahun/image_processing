@@ -80,4 +80,9 @@ public:
 	void GeometryZoomoutAvg();
 	void grass_label(int height, int width);
 	void grass(short* coloring, int height, int width, int i, int j, int curColor);
+	int push(short* stackx, short* stacky, int arr_size, short vx, short vy, int* top);
+	int pop(short* stackx, short* stacky, short* vx, short* vy, int* top);
+	void m_BlobColoring(int height, int width);
+	void GeometryRotate();
+	void m_BorderFollow(int height, int width);
 };

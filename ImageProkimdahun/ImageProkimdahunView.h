@@ -63,6 +63,9 @@ public:
 	afx_msg void OnGeometryZoomoutSubsampling();
 	afx_msg void OnGeometryZoomoutAvg();
 	afx_msg void OnLabeling();
+	afx_msg void OnLabelingStack();
+	afx_msg void OnGeometryRotate();
+	afx_msg void OnBorderfollow();
 };
 
 #ifndef _DEBUG  // ImageProkimdahunView.cpp의 디버그 버전

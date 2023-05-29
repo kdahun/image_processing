@@ -49,6 +49,9 @@ BEGIN_MESSAGE_MAP(CImageProkimdahunView, CScrollView)
 	ON_COMMAND(ID_GEOMETRY_ZOOMOUT_SUBSAMPLING, &CImageProkimdahunView::OnGeometryZoomoutSubsampling)
 	ON_COMMAND(ID_GEOMETRY_ZOOMOUT_AVG, &CImageProkimdahunView::OnGeometryZoomoutAvg)
 	ON_COMMAND(ID_LABELING, &CImageProkimdahunView::OnLabeling)
+	ON_COMMAND(ID_LABELING_STACK, &CImageProkimdahunView::OnLabelingStack)
+	ON_COMMAND(ID_GEOMETRY_ROTATE, &CImageProkimdahunView::OnGeometryRotate)
+	ON_COMMAND(ID_BorderFollow, &CImageProkimdahunView::OnBorderfollow)
 END_MESSAGE_MAP()
 
 // CImageProkimdahunView 생성/소멸
@@ -445,5 +448,44 @@ void CImageProkimdahunView::OnLabeling()
 	if (pDoc->inputImg == NULL) return;
 	pDoc->grass_label(0,0);
 	viewMode = TWO_IMAGES;
+	Invalidate(FALSE);
+}
+
+
+void CImageProkimdahunView::OnLabelingStack()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CImageProkimdahunDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if (pDoc->inputImg == NULL) return;
+	pDoc->m_BlobColoring(0, 0);
+	viewMode = TWO_IMAGES;
+	Invalidate(FALSE);
+}
+
+
+void CImageProkimdahunView::OnGeometryRotate()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CImageProkimdahunDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if (pDoc->inputImg == NULL) return;
+	pDoc->GeometryRotate();
+	viewMode = TWO_IMAGES_SCALED;
+	Invalidate(FALSE);
+}
+
+
+void CImageProkimdahunView::OnBorderfollow()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+
+	CImageProkimdahunDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	pDoc->m_BorderFollow(pDoc->imageHeight, pDoc->imageWidth);
 	Invalidate(FALSE);
 }

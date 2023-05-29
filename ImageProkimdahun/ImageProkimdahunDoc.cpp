@@ -846,3 +846,262 @@ void CImageProkimdahunDoc::grass(short* coloring, int height, int width, int i, 
 		}
 	}
 }
+
+
+int CImageProkimdahunDoc::push(short* stackx, short* stacky, int arr_size, short vx, short vy, int* top)
+{
+	if (*top >= arr_size)return(-1);
+	(*top)++;
+	stackx[*top] = vx;
+	stacky[*top] = vy;
+
+	// TODO: 여기에 구현 코드 추가.
+	return(1);
+}
+
+
+int CImageProkimdahunDoc::pop(short* stackx, short* stacky, short *vx, short *vy, int* top)
+{
+	// TODO: 여기에 구현 코드 추가.
+	if (*top == 0)return -1;
+	*vx = stackx[*top];
+	*vy = stacky[*top];
+	(*top)--;
+	return 1;
+}
+
+
+void CImageProkimdahunDoc::m_BlobColoring(int height, int width)
+{
+	height = imageHeight;
+	width = imageWidth;
+
+	// TODO: 여기에 구현 코드 추가.
+	int i, j, m, n, top, area, BlobArea[1000];
+	short curColor = 0, r, c;
+
+	short* stackx = new short[height * width];
+	short* stacky = new short[height * width];
+	int arr_size = height * width;
+
+	short* coloring = new short[height * width];
+	for (i = 0; i < height * width; i++) coloring[i] = 0;
+
+	for (i = 0; i < height; i++){
+		for (j = 0; j < width; j++) {
+			if (coloring[i * width + j] != 0 || inputImg[i][j] != 255)continue;
+
+			r = i; c = j; top = 0; area = 1;
+			curColor++;
+			while (1) {
+			GRASSFIRE:
+				for (m = r - 1; m <= r + 1; m++) {
+					for (n = c - 1; n <= c + 1; n++) {
+						if (m < 0 || m >= height || n < 0 || n >= width)continue;
+
+						if ((int)inputImg[m][n] == 255 && coloring[m * width + n] == 0) {
+							coloring[m * width + n] = curColor;
+							if (push(stackx, stacky, arr_size, (short)m, (short)n, &top) == -1)continue;
+							r = m;
+							c = n;
+							area++;
+							goto GRASSFIRE;
+						}
+					}
+				}
+				if (pop(stackx, stacky, &r, &c, &top) == -1)break;
+			}
+			if (curColor < 1000)BlobArea[curColor] = area;
+		}
+	}
+	float grayGap = 250.0f / (float)curColor;
+
+	/*FILE* fout;
+	fopen_s(&fout,"blobarea.out", "w");
+	if (fout != NULL)
+	{
+		for (i = 1; i < curColor; i++)fprintf(fout, "%i : %d\n", i, BlobArea[i]);
+		fclose(fout);
+	}*/
+
+	for (i = 0; i < height; i++) {
+		for (j = 0; j < width; j++) {
+			int value = (int)(coloring[i * width + j] * grayGap);
+			if (value == 0)resultImg[i][j] = 255;
+			else resultImg[i][j] = value;
+		}
+	}
+	delete[]coloring;
+	delete[]stackx;
+	delete[]stacky;
+}
+
+#define PI 3.14159
+
+void CImageProkimdahunDoc::GeometryRotate()
+{
+	
+   int y, x, x_source, y_source, Cx, Cy;
+   float angle;
+   int Oy;
+   int i, xdiff, ydiff;
+
+   Oy = imageHeight - 1;
+  
+   angle = (float) (PI / 180.0 * 30.0);   // 30도를 라디안 값의 각도로 변환
+
+   Cx = imageWidth / 2;   // 회전 중심의 x좌표
+   Cy = imageHeight / 2;   // 회전 중심의 y좌표 
+
+   // 결과 영상 크기 계산
+   gImageWidth = (int) (imageHeight*cos(PI / 2.0-angle) + imageWidth*cos(angle));
+   gImageHeight = (int) (imageHeight*cos(angle)+imageWidth*cos(PI / 2.0 - angle));
+   // 결과 영상을 저장할 기억장소 할당
+   gResultImg = (unsigned char **) malloc(gImageHeight * sizeof(unsigned char *));
+
+   for (i = 0; i < gImageHeight; i++) {
+        gResultImg[i] = (unsigned char *) malloc(gImageWidth * depth);
+   }
+
+   // 결과 영상의 x 좌표 범위 : -xdiff ~ gImageWidth - xdiff - 1
+   // 결과 영상의 y 좌표 범위 : -ydiff ~ gImageHeight - ydiff - 1
+   xdiff = (gImageWidth - imageWidth) / 2;
+   ydiff = (gImageHeight - imageHeight) / 2;
+
+   for (y = -ydiff; y < gImageHeight - ydiff; y++)
+      for (x = -xdiff; x < gImageWidth - xdiff; x++)
+      {
+         // 변환 단계
+         //     1 단계 : 원점이 영상의 좌측 하단에 오도록 y 좌표 변환
+         //     2 단계 : 회전 중심이 원점에 오도록 이동
+         //     3 단계 : 각도 angle 만큼 회전
+         //     4 단계 : 회전 중심이 원래 위치로 돌아가도록 이동
+         x_source = (int) (((Oy - y) - Cy) * sin(angle) + (x-Cx) * cos(angle)+Cx);
+         y_source = (int) (((Oy - y) - Cy) * cos(angle) - (x-Cx) * sin(angle)+Cy);
+
+         //     5 단계 : 원점이 영상의 좌측 상단에 오도록 y 좌표 변환
+         y_source = Oy - y_source;
+
+         if (x_source < 0 || x_source > imageWidth - 1 ||
+            y_source < 0 || y_source > imageHeight - 1)
+            gResultImg[y+ydiff][x+xdiff] = 255;
+         else 
+            gResultImg[y+ydiff][x+xdiff] = inputImg[y_source][x_source];
+      }
+
+}
+
+
+
+void CImageProkimdahunDoc::m_BorderFollow(int height, int width)
+{
+	// TODO: 여기에 구현 코드 추가.
+	typedef struct tagBORDERINFO { // 영역의 경계정보를 저장하기 위한 구조체 메모리
+		short* x, * y; 
+		short n, dn;
+	}BORDERINFO;
+
+	BORDERINFO stBorderInfo[1000];
+
+	// 영상에 있는 픽셀이 방문된 점인지를 마크하기 위해 영상 메모리 할당
+	unsigned char* visited = new unsigned char[height * width];
+	memset(visited, 0, height* width * sizeof(char));// 메모리 초기화
+
+
+	//추적점을 임시로 저장하기 위한 메모리
+	short* xchain = new short[10000];
+	short* ychain = new short[10000];
+
+
+	//관심 픽셀의 시계 방향으로 주위점을 나타내기 위한 좌표 설정
+	const POINT nei[8] = { 
+		{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1},{0,1},{1,1}
+	};
+
+	int x0, y0, x, y, k, n;
+	int numberBorder = 0, border_count, diagonal_count;
+	unsigned char c0, c1;
+
+	for (x = 1; x < height; x++) {
+		for (y = 1; y < width; y++) {
+			c0 = inputImg[x][y];
+			c1 = inputImg[x - 1][y];
+
+			if (c0 != c1 && c0 == 255 && visited[x * width + y] == 0) {
+				border_count = 0; // 경계점의 개수를 세기 위한 카운터
+				diagonal_count = 0;// 대각선 방향의 경계점 개수를 세는 카운터
+				x0 = x;
+				y0 = y;
+				n = 4; //경계추적 loop의 시작
+
+				do {
+					for (k = 0; k < 8; k++, n = ((n + 1) & 7)) {
+						short u = (short)(x + nei[n].x);
+						short v = (short)(y + nei[n].y);
+
+						if (u < 0 || u >= height || v < 0 || v >= width)continue;
+
+						if (inputImg[u][v] == c0) break;
+					}
+					if (k == 8)break;
+
+					visited[x * width + y] = 255;
+					xchain[border_count] = x;
+					ychain[border_count++] = y;
+
+					if (border_count >= 10000) break;
+
+					x = x + nei[n].x;
+					y = y + nei[n].y;
+
+					if (n % 2 == 1) diagonal_count++;
+
+					n = (n + 5) & 7;
+				} while (!(x == x0 && y == y0));
+
+				if (k == 8)continue;
+
+				// 경계 정보를 저장
+				if (border_count < 10) continue; //너무 작은 영역의 경계이면 무시한다.
+
+				//경계의 수만큼 메모리를 할당하여 저장한다.
+				stBorderInfo[numberBorder].x = new short[border_count];
+				stBorderInfo[numberBorder].y = new short[border_count];
+
+				for (k = 0; k < border_count; k++) {
+					stBorderInfo[numberBorder].x[k] = xchain[k];
+					stBorderInfo[numberBorder].y[k] = ychain[k];
+				}
+
+				stBorderInfo[numberBorder].n = border_count;
+				stBorderInfo[numberBorder++].dn = diagonal_count;
+
+				if (numberBorder >= 1000)break;
+			}
+		}
+	}
+
+	//memset(resultImg, 255, sizeof(unsigned char)* height* width);
+
+	for (int h = 0; h < height; h++) {
+		for (int w = 0; w < width; w++) {
+			resultImg[h][w] = 255;
+		}
+	}
+
+	for (k = 0; k < numberBorder; k++) {
+		TRACE("(%d: %d %d, %d)\n", k, stBorderInfo[k].n, stBorderInfo[k].dn, (int)(sqrt(2)* stBorderInfo[k].dn) + (stBorderInfo[k].n - stBorderInfo[k].dn));
+		for (int i = 0; i < stBorderInfo[k].n; i++) {
+			x = stBorderInfo[k].x[i];
+			y = stBorderInfo[k].y[i];
+			resultImg[x][y] = 0;
+		}
+	}
+	for (k = 0; k < numberBorder; k++) {
+		delete[]stBorderInfo[k].x;
+		delete[]stBorderInfo[k].y;
+	}
+	delete[]visited;
+	delete[]xchain;
+	delete[]ychain;
+}

@@ -66,13 +66,20 @@
 #define ID_GEOMETRY_ZOOMOUT_AVG         32804
 #define ID_32805                        32805
 #define ID_LABELING                     32806
+#define ID_32807                        32807
+#define ID_                             32808
+#define ID_LABELING_STACK               32809
+#define ID_32810                        32810
+#define ID_GEOMETRY_ROTATE              32811
+#define ID_32812                        32812
+#define ID_BorderFollow                 32813
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        310
-#define _APS_NEXT_COMMAND_VALUE         32807
+#define _APS_NEXT_COMMAND_VALUE         32814
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
